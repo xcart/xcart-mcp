@@ -80,7 +80,7 @@ The install hook (`#[AsInstallLifetimeHook]`) runs automatically and:
 3. Rebuilds the autoload classmap.
 4. Generates a random API key (`mcp_<32 hex>`) and busts the config cache so the key is live immediately.
 
-The generated API key is shown in **Admin → Settings → MCP AI Integration**.
+The **Admin → Settings → MCP AI Integration** page opens with a *Connect an AI client* panel: the HTTP endpoint, the API key, a ready-to-paste client JSON, a **Copy as prompt** button (copies a filled-in setup prompt — real endpoint and `Authorization: Bearer <key>` included — to hand to Claude/Cursor), and a **Test connection** button. The options form sits below it.
 
 > **Disable / remove:** `php service-tool/bin/console xcst:rebuild --disable XC-MCP`
 
