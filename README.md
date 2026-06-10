@@ -6,6 +6,8 @@
 
 **Model Context Protocol server for X-Cart 5.6 — let AI agents manage your store.**
 
+[![Install with an AI agent](https://img.shields.io/badge/🤖_install_with-an_AI_agent-6E56CF?style=for-the-badge)](AGENTS.md)
+
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![PHP](https://img.shields.io/badge/PHP-8.1%2B-777BB4.svg)](https://www.php.net/)
 [![X-Cart](https://img.shields.io/badge/X--Cart-5.6-FF6600.svg)](https://www.x-cart.com/)
