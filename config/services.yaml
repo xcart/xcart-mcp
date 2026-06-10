@@ -13,6 +13,7 @@ services:
       - '../src/MCP/Util/CategoryFactory.php'
       - '../src/MCP/Util/OllamaClient.php'
       - '../src/Model/'
+      - '../src/View/'
 
   XC\MCP\MCP\Security\RateLimiter:
     arguments:
