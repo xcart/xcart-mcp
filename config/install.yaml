@@ -1,0 +1,99 @@
+XLite\Model\Config:
+  - name: mcp_enabled
+    category: XC\MCP
+    type: XLite\View\FormField\Input\Checkbox\OnOff
+    orderby: 100
+    value: true
+    translations: [{code: en, option_name: 'Enable MCP Server'}]
+    module: XC\MCP
+  - name: mcp_api_key
+    category: XC\MCP
+    type: XLite\View\FormField\Input\Text
+    orderby: 150
+    value: ''
+    translations: [{code: en, option_name: 'MCP API Key', option_comment: 'Static Bearer token for MCP HTTP requests. Leave empty to use standard X-Cart API keys from the database.'}]
+    module: XC\MCP
+  - name: http_transport_enabled
+    category: XC\MCP
+    type: XLite\View\FormField\Input\Checkbox\OnOff
+    orderby: 200
+    value: true
+    translations: [{code: en, option_name: 'Enable HTTP Transport'}]
+    module: XC\MCP
+  - name: server_name
+    category: XC\MCP
+    type: XLite\View\FormField\Input\Text
+    orderby: 250
+    value: 'X-Cart MCP Server'
+    translations: [{code: en, option_name: 'Server Name', option_comment: 'Display name reported to MCP clients during initialization.'}]
+    module: XC\MCP
+  - name: rate_limit
+    category: XC\MCP
+    type: XLite\View\FormField\Input\Text\Integer
+    orderby: 300
+    value: 60
+    translations: [{code: en, option_name: 'Rate Limit', option_comment: 'Maximum requests per minute per API key.'}]
+    module: XC\MCP
+  - name: request_logging
+    category: XC\MCP
+    type: XLite\View\FormField\Input\Checkbox\OnOff
+    orderby: 400
+    value: true
+    translations: [{code: en, option_name: 'Log MCP Requests', option_comment: 'Log all incoming MCP requests for auditing.'}]
+    module: XC\MCP
+  - name: dangerous_tools_enabled
+    category: XC\MCP
+    type: XLite\View\FormField\Input\Checkbox\OnOff
+    orderby: 500
+    value: false
+    translations: [{code: en, option_name: 'Enable Dangerous Tools', option_comment: 'Allow product_delete and bulk_update_prices tools. Disabled by default for safety.'}]
+    module: XC\MCP
+  - name: mcp_oauth_enabled
+    category: XC\MCP
+    type: XLite\View\FormField\Input\Checkbox\OnOff
+    orderby: 550
+    value: false
+    translations: [{code: en, option_name: 'Enable OAuth (experimental)', option_comment: 'Authenticate HTTP requests with OAuth 2.0 JWT access tokens instead of the static API key. Requires an external identity provider (issuer below). Leave off to use the API key.'}]
+    module: XC\MCP
+  - name: mcp_oauth_issuer
+    category: XC\MCP
+    type: XLite\View\FormField\Input\Text
+    orderby: 552
+    value: ''
+    translations: [{code: en, option_name: 'OAuth Issuer URL', option_comment: 'OIDC issuer base URL, e.g. https://idp.example.com/realms/store. JWKS is discovered from it.'}]
+    module: XC\MCP
+  - name: mcp_oauth_audience
+    category: XC\MCP
+    type: XLite\View\FormField\Input\Text
+    orderby: 554
+    value: ''
+    translations: [{code: en, option_name: 'OAuth Audience', option_comment: 'Expected token audience. Leave empty to use this MCP endpoint URL.'}]
+    module: XC\MCP
+  - name: mcp_oauth_jwks_uri
+    category: XC\MCP
+    type: XLite\View\FormField\Input\Text
+    orderby: 556
+    value: ''
+    translations: [{code: en, option_name: 'OAuth JWKS URI (optional)', option_comment: 'Override the JWKS URI if it cannot be discovered from the issuer.'}]
+    module: XC\MCP
+  - name: ollama_enabled
+    category: XC\MCP
+    type: XLite\View\FormField\Input\Checkbox\OnOff
+    orderby: 600
+    value: false
+    translations: [{code: en, option_name: 'Enable Ollama Chat', option_comment: 'Show the in-admin chat tab backed by a local Ollama server.'}]
+    module: XC\MCP
+  - name: ollama_url
+    category: XC\MCP
+    type: XLite\View\FormField\Input\Text
+    orderby: 650
+    value: 'http://localhost:11434'
+    translations: [{code: en, option_name: 'Ollama URL', option_comment: 'Base URL of the Ollama HTTP API. From inside Docker use http://172.17.0.1:11434 to reach the host, or a compose service name (e.g. http://llm:11434) for a sibling container.'}]
+    module: XC\MCP
+  - name: ollama_model
+    category: XC\MCP
+    type: XLite\View\FormField\Input\Text
+    orderby: 700
+    value: 'gemma4:e4b'
+    translations: [{code: en, option_name: 'Ollama Model', option_comment: 'Default model tag (e.g. gemma4:e4b, gemma3n:e4b, qwen2.5:7b). Must be pulled on the Ollama server first.'}]
+    module: XC\MCP

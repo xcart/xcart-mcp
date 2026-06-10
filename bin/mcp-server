@@ -1,0 +1,74 @@
+#!/usr/bin/env php
+<?php
+/**
+ * X-Cart MCP Server — STDIO entry point
+ *
+ * Usage:
+ *   php modules/XC/MCP/bin/mcp-server
+ *
+ * Environment variables:
+ *   MCP_API_KEY  — Optional API key for STDIO authentication.
+ *                  If unset, grants full access (trusted local process).
+ *
+ * Claude Desktop config:
+ *   {
+ *     "mcpServers": {
+ *       "xcart": {
+ *         "command": "php",
+ *         "args": ["/path/to/xcart/modules/XC/MCP/bin/mcp-server"]
+ *       }
+ *     }
+ *   }
+ */
+
+// X-Cart bootstrap — find the root directory
+$xcartRoot = realpath(__DIR__ . '/../../../../');
+if (!$xcartRoot || !file_exists($xcartRoot . '/vendor/autoload.php')) {
+    fwrite(STDERR, "Error: Cannot find X-Cart root directory. Expected at: " . dirname(__DIR__, 4) . "\n");
+    exit(1);
+}
+
+require_once $xcartRoot . '/vendor/autoload.php';
+
+// Load environment the same way public/index.php and bin/console do.
+// Booting the kernel needs XCART_HOST_DETAILS_* and APP_ENV from .env,
+// and autoload_xcart.php registers the var/run/classes autoloader for
+// compiled module/bundle classes (without it the kernel dies with
+// "Class XC\...Bundle not found" during registerBundles()).
+if (file_exists($xcartRoot . '/.env') && class_exists(\Symfony\Component\Dotenv\Dotenv::class)) {
+    (new \Symfony\Component\Dotenv\Dotenv())->bootEnv($xcartRoot . '/.env');
+}
+if (file_exists($xcartRoot . '/vendor/autoload_xcart.php')) {
+    require_once $xcartRoot . '/vendor/autoload_xcart.php';
+}
+if (file_exists($xcartRoot . '/bootstrap.php')) {
+    require_once $xcartRoot . '/bootstrap.php';
+}
+
+use Mcp\Server\Transport\StdioTransport;
+use XC\MCP\MCP\Security\McpAuthenticator;
+use XC\MCP\MCP\Server\ServerFactory;
+
+// Boot X-Cart kernel
+$appEnv = $_SERVER['APP_ENV'] ?? $_ENV['APP_ENV'] ?? 'prod';
+$appDebug = (bool) ($_SERVER['APP_DEBUG'] ?? $_ENV['APP_DEBUG'] ?? false);
+$kernel = new \XCart\Kernel($appEnv, $appDebug);
+$kernel->boot();
+$container = $kernel->getContainer();
+
+// Authenticate STDIO session (env-based or full access)
+/** @var McpAuthenticator $authenticator */
+$authenticator = $container->get(McpAuthenticator::class);
+$securityContext = $authenticator->authenticateStdio();
+
+// Set the security context before creating the server
+$contextHolder = $container->get(\XC\MCP\MCP\Security\SecurityContextHolder::class);
+$contextHolder->setContext($securityContext);
+
+// Create and run MCP server
+/** @var ServerFactory $factory */
+$factory = $container->get(ServerFactory::class);
+$server = $factory->createServerForStdio();
+
+$transport = new StdioTransport();
+$server->run($transport);

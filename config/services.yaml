@@ -1,0 +1,36 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: true
+
+  XC\MCP\:
+    resource: '../src/'
+    exclude:
+      - '../src/Main.php'
+      - '../src/MCPBundle.php'
+      - '../src/MCP/Server/McpCapabilityProvider.php'
+      - '../src/MCP/Util/CategoryFactory.php'
+      - '../src/MCP/Util/OllamaClient.php'
+      - '../src/Model/'
+
+  XC\MCP\MCP\Security\RateLimiter:
+    arguments:
+      $cache: '@cache.psr16.common'
+
+  XC\MCP\MCP\Security\OAuthSupport:
+    arguments:
+      $cache: '@cache.psr16.common'
+
+  XC\MCP\MCP\Security\SecurityContextHolder:
+    shared: true
+
+  XC\MCP\MCP\Server\ServerFactory:
+    arguments:
+      $container: '@service_container'
+      $cache: '@cache.psr16.common'
+      $capabilityProviders: !tagged_iterator mcp.capability_provider
+
+  XC\MCP\MCP\Util\ToolBridge:
+    arguments:
+      $container: '@service_container'

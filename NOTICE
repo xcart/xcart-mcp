@@ -1,0 +1,21 @@
+X-Cart MCP Server
+Copyright 2026 The X-Cart MCP Server contributors
+
+This product includes software developed as a Model Context Protocol (MCP)
+integration module for the X-Cart 5.6 e-commerce platform.
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not
+use this software except in compliance with the License. You may obtain a
+copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+
+"X-Cart" is a trademark of X-Cart Holdings LLC. This is an independent
+integration module and is not an official X-Cart product or affiliated with
+X-Cart Holdings LLC.
+
+Bundled third-party dependencies under vendor/ retain their own licenses:
+  - modelcontextprotocol/php-sdk (MIT)
+  - nyholm/psr7 (MIT)
+  - opis/json-schema, opis/string, opis/uri (Apache-2.0 / MIT)
+  - php-http/discovery (MIT)
+  - psr/* (MIT)
+  - symfony/psr-http-message-bridge (MIT)

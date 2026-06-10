@@ -1,0 +1,18 @@
+{
+    "name": "xc/mcp",
+    "description": "Model Context Protocol (MCP) server for X-Cart 5.6 — lets AI agents manage the store over STDIO or authenticated HTTP.",
+    "type": "xcart-module",
+    "license": "Apache-2.0",
+    "keywords": ["x-cart", "xcart", "mcp", "model-context-protocol", "ai", "llm", "claude", "ecommerce"],
+    "require": {
+        "php": ">=8.1",
+        "mcp/sdk": "^0.6",
+        "nyholm/psr7": "^1.8",
+        "symfony/psr-http-message-bridge": "^6.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "XC\\MCP\\": "src/"
+        }
+    }
+}
