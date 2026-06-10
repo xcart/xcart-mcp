@@ -2,7 +2,7 @@
  # MCP AI Integration — connection info shown above the addon settings form.
  #}
 {% set webDir = config.Security.web_dir|default('') %}
-{% set currentKey = config.XC.MCP.mcp_api_key|default('') %}
+{% set currentKey = this.getMcpApiKey()|default('') %}
 
 <div class="mcp-connection">
   <h3 class="mcp-connection-title">{{ t('Connect an AI client') }}</h3>

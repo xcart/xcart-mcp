@@ -11,8 +11,6 @@ services:
       - '../src/MCPBundle.php'
       - '../src/MCP/Server/McpCapabilityProvider.php'
       - '../src/MCP/Util/CategoryFactory.php'
-      - '../src/MCP/Util/OllamaClient.php'
-      - '../src/Model/'
       - '../src/View/'
 
   XC\MCP\MCP\Security\RateLimiter:
@@ -31,7 +29,3 @@ services:
       $container: '@service_container'
       $cache: '@cache.psr16.common'
       $capabilityProviders: !tagged_iterator mcp.capability_provider
-
-  XC\MCP\MCP\Util\ToolBridge:
-    arguments:
-      $container: '@service_container'

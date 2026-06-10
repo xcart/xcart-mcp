@@ -76,24 +76,3 @@ XLite\Model\Config:
     value: ''
     translations: [{code: en, option_name: 'OAuth JWKS URI (optional)', option_comment: 'Override the JWKS URI if it cannot be discovered from the issuer.'}]
     module: XC\MCP
-  - name: ollama_enabled
-    category: XC\MCP
-    type: XLite\View\FormField\Input\Checkbox\OnOff
-    orderby: 600
-    value: false
-    translations: [{code: en, option_name: 'Enable Ollama Chat', option_comment: 'Show the in-admin chat tab backed by a local Ollama server.'}]
-    module: XC\MCP
-  - name: ollama_url
-    category: XC\MCP
-    type: XLite\View\FormField\Input\Text
-    orderby: 650
-    value: 'http://localhost:11434'
-    translations: [{code: en, option_name: 'Ollama URL', option_comment: 'Base URL of the Ollama HTTP API. From inside Docker use http://172.17.0.1:11434 to reach the host, or a compose service name (e.g. http://llm:11434) for a sibling container.'}]
-    module: XC\MCP
-  - name: ollama_model
-    category: XC\MCP
-    type: XLite\View\FormField\Input\Text
-    orderby: 700
-    value: 'gemma4:e4b'
-    translations: [{code: en, option_name: 'Ollama Model', option_comment: 'Default model tag (e.g. gemma4:e4b, gemma3n:e4b, qwen2.5:7b). Must be pulled on the Ollama server first.'}]
-    module: XC\MCP

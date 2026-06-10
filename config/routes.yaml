@@ -8,35 +8,3 @@ mcp_endpoint_slash:
   path: /mcp/
   controller: XC\MCP\Controller\API\McpController::handle
   methods: [POST, GET, DELETE]
-
-mcp_chat_ping:
-  path: /mcp-chat/ping
-  controller: XC\MCP\Controller\Admin\McpChatController::ping
-  methods: [GET]
-
-mcp_chat_list:
-  path: /mcp-chat/chats
-  controller: XC\MCP\Controller\Admin\McpChatController::listChats
-  methods: [GET]
-
-mcp_chat_create:
-  path: /mcp-chat/chats
-  controller: XC\MCP\Controller\Admin\McpChatController::createChat
-  methods: [POST]
-
-mcp_chat_get:
-  path: /mcp-chat/chats/{id}
-  controller: XC\MCP\Controller\Admin\McpChatController::getChat
-  methods: [GET]
-  requirements: { id: '\d+' }
-
-mcp_chat_delete:
-  path: /mcp-chat/chats/{id}
-  controller: XC\MCP\Controller\Admin\McpChatController::deleteChat
-  methods: [DELETE]
-  requirements: { id: '\d+' }
-
-mcp_chat_send:
-  path: /mcp-chat/send
-  controller: XC\MCP\Controller\Admin\McpChatController::send
-  methods: [POST]
