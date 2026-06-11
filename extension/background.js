@@ -132,14 +132,29 @@ async function buildContext(overrides, signal) {
   };
 }
 
-// Convert a stored display transcript into a provider-neutral history.
+// Convert a stored display transcript into a provider-neutral history,
+// reconstructing real tool calls + results so a follow-up ("continue") is
+// grounded in what was actually done — not just the model's own narration.
 function historyToNeutral(messages) {
   const out = [];
+  let asst = null; // { content, tool_calls: [], results: [] }
+  const flush = () => {
+    if (!asst) return;
+    out.push({ role: 'assistant', content: asst.content, tool_calls: asst.tool_calls.length ? asst.tool_calls : undefined });
+    for (const r of asst.results) out.push({ role: 'tool', tool_call_id: r.id, name: r.name, content: r.content });
+    asst = null;
+  };
   for (const m of messages) {
-    if (m.role === 'user') out.push({ role: 'user', content: m.content || '' });
-    else if (m.role === 'assistant') out.push({ role: 'assistant', content: m.content || '' });
-    // 'tool' display entries are dropped — each turn re-runs tools fresh.
+    if (m.role === 'user') { flush(); out.push({ role: 'user', content: m.content || '' }); }
+    else if (m.role === 'assistant') { flush(); asst = { content: m.content || '', tool_calls: [], results: [] }; }
+    else if (m.role === 'tool') {
+      if (!asst) asst = { content: '', tool_calls: [], results: [] };
+      const id = m.id || `h${out.length}_${asst.tool_calls.length}`;
+      asst.tool_calls.push({ id, name: encodeToolName(m.server, m.name), arguments: m.args || {} });
+      asst.results.push({ id, name: m.name, content: m.ok ? (m.preview || '(ok)') : JSON.stringify({ error: m.error }) });
+    }
   }
+  flush();
   return out;
 }
 

@@ -189,6 +189,10 @@ function appendMsg(m) {
 
 function renderTranscript() {
   const chat = currentChat();
+  // Sticky-bottom: only auto-scroll if the user is already near the bottom,
+  // so streaming text doesn't yank the view down while they read above.
+  const stick = transcriptEl.scrollHeight - transcriptEl.scrollTop - transcriptEl.clientHeight < 80;
+  const prevTop = transcriptEl.scrollTop;
   transcriptEl.innerHTML = '';
   const msgs = chat?.messages || [];
   const showingLive = liveActive();
@@ -211,7 +215,7 @@ function renderTranscript() {
   } else {
     for (const m of msgs) appendMsg(m);
   }
-  transcriptEl.scrollTop = transcriptEl.scrollHeight;
+  transcriptEl.scrollTop = stick ? transcriptEl.scrollHeight : prevTop;
 }
 
 function scheduleRender() {

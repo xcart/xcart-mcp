@@ -150,6 +150,33 @@ test('multi-step: two sequential tool calls, then a final answer', async () => {
   } finally { await ctx.close(); }
 });
 
+test('continue is grounded: prior tool calls + results are replayed into history', async () => {
+  const seen = [];
+  const llm = (req) => { seen.push(req.postData() || ''); return { body: oa(oaText('All done.')) }; };
+  const chat = {
+    id: 'c_cont', title: 'cont', createdAt: 1, updatedAt: 1, status: 'idle',
+    messages: [
+      { role: 'user', content: 'create categories A and B' },
+      { role: 'assistant', content: 'Creating:' },
+      { role: 'tool', id: 'call_1', server: SERVER_ID, name: 'product_search', args: { query: 'A' }, ok: true, preview: '{"created":"A"}' },
+      { role: 'tool', id: 'call_2', server: SERVER_ID, name: 'product_search', args: { query: 'B' }, ok: true, preview: '{"created":"B"}' },
+      { role: 'user', content: 'continue' },
+    ],
+  };
+  const { ctx, extId } = await launchExt({ llm });
+  try {
+    const panel = await openPanel(ctx, extId, { chat });
+    await panel.evaluate(() => new Promise(r => chrome.runtime.sendMessage({ type: 'CHAT_START', chatId: 'c_cont' }, r)));
+    await expect(panel.locator('#transcript .msg.ai').last()).toContainText('All done', { timeout: 10000 });
+    const sent = JSON.parse(seen[0] || '{}');
+    const toolMsgs = sent.messages.filter(m => m.role === 'tool');
+    expect(toolMsgs.length).toBe(2);                                  // both tool results replayed, not dropped
+    expect(toolMsgs.map(m => m.content).join()).toContain('created'); // real result content present
+    const asst = sent.messages.find(m => m.role === 'assistant');
+    expect(asst.tool_calls.map(c => c.function.name)).toContain(`${SERVER_ID}__product_search`); // calls reconstructed with encoded name
+  } finally { await ctx.close(); }
+});
+
 test('tool error renders a red error card and the agent still replies', async () => {
   const onMcpCall = () => ({ error: { message: 'Inventory service unavailable' } });
   const { ctx, extId } = await launchExt({ onMcpCall });
