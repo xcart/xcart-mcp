@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>X-Cart MCP Copilot</title>
+<link rel="stylesheet" href="panel.css">
+</head>
+<body>
+  <header>
+    <button id="btn-toggle-sidebar" class="icon-btn" title="Toggle chat list">☰</button>
+    <span class="title" id="chat-title-label">X-Cart MCP Copilot</span>
+    <button id="btn-theme" class="icon-btn" title="Theme">◐</button>
+    <button id="btn-chat-settings" class="icon-btn" title="Chat settings">⚙</button>
+    <button id="btn-options" class="icon-btn" title="Options">⋯</button>
+  </header>
+
+  <div id="layout">
+    <aside id="sidebar">
+      <div id="sidebar-head"><button id="btn-new-chat">+ New chat</button></div>
+      <div id="chat-list"></div>
+    </aside>
+
+    <main id="main">
+      <div id="transcript"></div>
+      <div id="composer">
+        <textarea id="input" rows="1" placeholder="Message your store… (Enter to send)"></textarea>
+        <button id="btn-send" title="Send">➤</button>
+        <button id="btn-stop" title="Stop" hidden>■</button>
+      </div>
+      <div id="status">Ready</div>
+    </main>
+  </div>
+
+  <div id="modal-backdrop">
+    <div id="modal">
+      <h3>Chat settings</h3>
+
+      <label>Provider (override)
+        <select id="m-provider"></select>
+      </label>
+      <label>Model (override)
+        <input type="text" id="m-model" placeholder="Leave empty for provider default">
+      </label>
+      <label>System prompt
+        <textarea id="m-prompt" placeholder="Leave empty to use default from Options"></textarea>
+      </label>
+
+      <label style="margin-top:14px;">MCP servers for this chat</label>
+      <div class="muted">Uncheck a server to exclude it. Optionally override its tool selection.</div>
+      <div id="m-servers"></div>
+
+      <div class="modal-actions">
+        <button id="m-cancel" class="secondary">Cancel</button>
+        <button id="m-reset" class="secondary">Use defaults</button>
+        <button id="m-save" class="primary">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="panel.js"></script>
+</body>
+</html>

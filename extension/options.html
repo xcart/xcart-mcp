@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>X-Cart MCP Copilot — Options</title>
+<link rel="stylesheet" href="options.css">
+</head>
+<body>
+
+<div class="topbar">
+  <h1>X-Cart MCP Copilot</h1>
+  <label style="margin:0;font-weight:600;">Theme
+    <select id="theme" style="width:auto;margin-top:0;margin-left:6px;">
+      <option value="auto">Auto</option>
+      <option value="light">Light</option>
+      <option value="dark">Dark</option>
+    </select>
+  </label>
+</div>
+<p class="sub">Chat with your X-Cart store through the MCP module, powered by the LLM provider of your choice.</p>
+
+<h2>LLM provider</h2>
+<p class="muted">Pick the active provider and fill in its API key. You can store keys for several and switch per-chat.</p>
+<div class="provider-grid" id="providers"></div>
+
+<label style="margin-top:18px;">System prompt
+  <textarea id="systemPrompt"></textarea>
+</label>
+
+<label>Max tool steps per message
+  <input type="number" id="maxIterations" min="1" max="200" step="1" style="max-width:140px;">
+</label>
+<div class="muted">How many tool calls the agent may chain for one message before it stops. Raise it for bulk operations (e.g. creating many categories). Default 40, max 200.</div>
+
+<h2>MCP servers</h2>
+<div id="servers"></div>
+<div class="row" style="margin-top: 10px;">
+  <button id="addServer" class="secondary">+ Add MCP server</button>
+  <button id="save">Save all</button>
+</div>
+<div id="global-status"></div>
+
+<template id="provider-tpl">
+  <div class="provider-card" data-id="">
+    <div class="phead">
+      <input type="radio" name="active-provider" class="active-radio">
+      <span class="name"></span>
+      <span class="badge" hidden>Active</span>
+    </div>
+    <label>API key <input type="password" class="key"></label>
+    <div class="keyhelp"></div>
+    <label>Model <input type="text" class="model"></label>
+  </div>
+</template>
+
+<template id="server-tpl">
+  <div class="card server-card" data-id="">
+    <div class="server-head">
+      <input type="text" class="name-input" placeholder="Server name (e.g. Production X-Cart)">
+      <button class="delete danger">Delete</button>
+    </div>
+    <div class="server-body">
+      <label>MCP endpoint URL <input type="text" class="url" placeholder="https://your-xcart-domain/mcp"></label>
+      <label>MCP API key <input type="password" class="key" placeholder="mcp_xxxxxxxx"></label>
+    </div>
+    <div class="server-actions">
+      <button class="test secondary">Test connection</button>
+      <button class="fetch secondary">Fetch tools</button>
+      <button class="select-all ghost">Select all</button>
+      <button class="select-none ghost">Select none</button>
+    </div>
+    <div class="server-status muted">Not tested yet.</div>
+    <div class="tools-list"><em class="muted">Click “Fetch tools” to load.</em></div>
+  </div>
+</template>
+
+<script type="module" src="options.js"></script>
+</body>
+</html>

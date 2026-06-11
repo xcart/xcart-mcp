@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "X-Cart MCP Copilot",
+  "version": "0.2.0",
+  "description": "Chat with your X-Cart store via MCP tools, powered by Claude, DeepSeek, or OpenAI.",
+  "permissions": ["storage", "unlimitedStorage", "sidePanel", "alarms"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "X-Cart MCP Copilot",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "side_panel": {
+    "default_path": "panel.html"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3d7bf5"/>
+      <stop offset="1" stop-color="#1b2c6e"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="0" y="0" width="128" height="128" rx="28" fill="url(#bg)"/>
+
+  <!-- shopping cart -->
+  <g fill="none" stroke="#ffffff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+    <!-- handle + basket outline -->
+    <path d="M24 36 H37 L47 50 L104 50 L94 80 L57 80 L47 50"/>
+  </g>
+  <!-- wheels -->
+  <circle cx="60" cy="94" r="7" fill="#ffffff"/>
+  <circle cx="90" cy="94" r="7" fill="#ffffff"/>
+
+  <!-- AI spark -->
+  <path d="M97 22 C98 30 100 32 108 33 C100 34 98 36 97 44 C96 36 94 34 86 33 C94 32 96 30 97 22 Z"
+        fill="#bfe0ff"/>
+</svg>

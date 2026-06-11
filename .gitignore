@@ -13,3 +13,9 @@ var/
 # Local env
 .env
 .env.local
+
+# Node / extension test tooling
+node_modules/
+extension/node_modules/
+extension/test-results/
+playwright-report/
