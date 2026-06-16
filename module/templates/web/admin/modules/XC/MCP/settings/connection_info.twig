@@ -22,13 +22,11 @@
       </div>
       <div class="table-value">
         <div class="input-internal-wrapper">
-          <div class="input-group">
+          <div class="mcp-field">
             <span class="input-field-wrapper input input-text">
               <input type="text" id="mcp-endpoint" class="form-control field__field mcp-mono" value="{{ webDir }}/mcp" readonly onclick="this.select()" />
             </span>
-            <span class="input-group-btn">
-              <button type="button" class="btn regular-button mcp-copy" data-copy="#mcp-endpoint">{{ t('Copy') }}</button>
-            </span>
+            <button type="button" class="btn regular-button mcp-copy" data-copy="#mcp-endpoint">{{ t('Copy') }}</button>
           </div>
         </div>
         <div class="clear"></div>
@@ -42,14 +40,12 @@
       <div class="table-value">
         <div class="input-internal-wrapper">
           {% if currentKey %}
-            <div class="input-group">
+            <div class="mcp-field">
               <span class="input-field-wrapper input input-text">
                 <input type="text" id="mcp-apikey" class="form-control field__field mcp-mono mcp-secret" value="{{ currentKey }}" readonly onclick="this.select()" />
               </span>
-              <span class="input-group-btn">
-                <button type="button" class="btn regular-button mcp-copy" data-copy="#mcp-apikey">{{ t('Copy') }}</button>
-                <button type="button" class="btn regular-button mcp-reveal">{{ t('Show') }}</button>
-              </span>
+              <button type="button" class="btn regular-button mcp-copy" data-copy="#mcp-apikey">{{ t('Copy') }}</button>
+              <button type="button" class="btn regular-button mcp-reveal">{{ t('Show') }}</button>
             </div>
           {% else %}
             <span class="mcp-muted">{{ t('Not set — falls back to X-Cart API keys from the database.') }}</span>
@@ -247,11 +243,16 @@ Treat the API key as a secret — do not share or commit it.</textarea>
 .mcp-connection ul.table li.input .table-value { flex: 1 1 auto; min-width: 0; }
 .mcp-connection .mcp-help { margin: 0 0 6px; font-weight: 400; opacity: .7; }
 .mcp-connection .mcp-mono { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; }
-.mcp-connection textarea.mcp-mono { width: 100%; resize: vertical; }
-.mcp-connection .input-group { display: flex; }
-.mcp-connection .input-group .input-field-wrapper { flex: 1 1 auto; }
-.mcp-connection .input-group .input-field-wrapper .form-control { width: 100%; }
-.mcp-connection .input-group .input-group-btn { flex: 0 0 auto; white-space: nowrap; padding-left: 8px; }
+.mcp-connection .input-internal-wrapper { min-width: 0; }
+.mcp-connection .input-field-wrapper { display: block; min-width: 0; }
+.mcp-connection .input-field-wrapper .form-control { width: 100%; box-sizing: border-box; }
+.mcp-connection textarea.mcp-mono { width: 100%; max-width: 100%; box-sizing: border-box; resize: vertical; }
+/* Field + inline action buttons: native white/blue regular-button, no bootstrap
+ * input-group (its context recolours the buttons grey). min-width:0 lets the
+ * long readonly value shrink instead of forcing horizontal page overflow. */
+.mcp-connection .mcp-field { display: flex; align-items: flex-start; gap: 8px; }
+.mcp-connection .mcp-field .input-field-wrapper { flex: 1 1 auto; min-width: 0; }
+.mcp-connection .mcp-field .btn { flex: 0 0 auto; }
 .mcp-connection .mcp-actions { margin-top: 6px; }
 .mcp-connection .mcp-secret { -webkit-text-security: disc; text-security: disc; }
 .mcp-connection .mcp-muted { opacity: .65; }
