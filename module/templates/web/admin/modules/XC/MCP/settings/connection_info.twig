@@ -1,37 +1,68 @@
 {##
  # MCP AI Integration — connection info shown above the addon settings form.
+ #
+ # Markup mirrors the native X-Cart admin options form (ul.table.default-table,
+ # table-label / table-value, input-field-wrapper, form-control field__field,
+ # btn regular-button) so the block reads as a native part of the page instead
+ # of a self-styled card. Only the few rules the platform does not provide
+ # (monospace readonly fields, secret masking, test-result colours) are kept.
  #}
 {% set webDir = config.Security.web_dir|default('') %}
 {% set currentKey = this.getMcpApiKey()|default('') %}
 
-<div class="mcp-connection">
-  <h3 class="mcp-connection-title">{{ t('Connect an AI client') }}</h3>
+<div class="mcp-connection has-tips">
+  <h2 class="mcp-connection-title">{{ t('Connect an AI client') }}</h2>
   <p class="mcp-connection-lead">{{ t('Use the values below to connect Claude, Cursor, Codex or any MCP client to this store.') }}</p>
 
-  <table class="mcp-connection-table">
-    <tr>
-      <td class="mcp-cn-label">{{ t('HTTP Endpoint') }}</td>
-      <td class="mcp-cn-value">
-        <input type="text" id="mcp-endpoint" class="form-control mcp-mono" value="{{ webDir }}/mcp" readonly onclick="this.select()" />
-        <button type="button" class="btn regular-button mcp-copy" data-copy="#mcp-endpoint">{{ t('Copy') }}</button>
-      </td>
-    </tr>
-    <tr>
-      <td class="mcp-cn-label">{{ t('API Key') }}</td>
-      <td class="mcp-cn-value">
-        {% if currentKey %}
-          <input type="text" id="mcp-apikey" class="form-control mcp-mono mcp-secret" value="{{ currentKey }}" readonly onclick="this.select()" />
-          <button type="button" class="btn regular-button mcp-copy" data-copy="#mcp-apikey">{{ t('Copy') }}</button>
-          <button type="button" class="btn regular-button mcp-reveal">{{ t('Show') }}</button>
-        {% else %}
-          <span class="mcp-muted">{{ t('Not set — falls back to X-Cart API keys from the database.') }}</span>
-        {% endif %}
-      </td>
-    </tr>
-    <tr>
-      <td class="mcp-cn-label">{{ t('Client config (JSON)') }}</td>
-      <td class="mcp-cn-value">
-        <textarea id="mcp-json" class="form-control mcp-mono mcp-json" readonly rows="8" onclick="this.select()">{
+  <ul class="table default-table mcp-connection-list">
+
+    <li class="input input-text">
+      <div class="table-label">
+        <label for="mcp-endpoint">{{ t('HTTP Endpoint') }}</label>
+      </div>
+      <div class="table-value">
+        <div class="input-internal-wrapper">
+          <div class="mcp-field">
+            <span class="input-field-wrapper input input-text">
+              <input type="text" id="mcp-endpoint" class="form-control field__field mcp-mono" value="{{ webDir }}/mcp" readonly onclick="this.select()" />
+            </span>
+            <button type="button" class="btn regular-button mcp-copy" data-copy="#mcp-endpoint">{{ t('Copy') }}</button>
+          </div>
+        </div>
+        <div class="clear"></div>
+      </div>
+    </li>
+
+    <li class="input input-text">
+      <div class="table-label">
+        <label for="mcp-apikey">{{ t('API Key') }}</label>
+      </div>
+      <div class="table-value">
+        <div class="input-internal-wrapper">
+          {% if currentKey %}
+            <div class="mcp-field">
+              <span class="input-field-wrapper input input-text">
+                <input type="text" id="mcp-apikey" class="form-control field__field mcp-mono mcp-secret" value="{{ currentKey }}" readonly onclick="this.select()" />
+              </span>
+              <button type="button" class="btn regular-button mcp-copy" data-copy="#mcp-apikey">{{ t('Copy') }}</button>
+              <button type="button" class="btn regular-button mcp-reveal">{{ t('Show') }}</button>
+            </div>
+          {% else %}
+            <span class="mcp-muted">{{ t('Not set — falls back to X-Cart API keys from the database.') }}</span>
+          {% endif %}
+        </div>
+        <div class="clear"></div>
+      </div>
+    </li>
+
+    <li class="input input-textarea">
+      <div class="table-label">
+        <label for="mcp-json">{{ t('Client config (JSON)') }}</label>
+      </div>
+      <div class="table-value">
+        <div class="input-internal-wrapper">
+          <span class="input-field-wrapper input input-textarea">
+            <textarea id="mcp-json" class="form-control field__field mcp-mono" readonly rows="8" onclick="this.select()">{
   "mcpServers": {
     "xcart": {
       "type": "streamable-http",
@@ -40,16 +71,24 @@
     }
   }
 }</textarea>
-        <button type="button" class="btn regular-button mcp-copy" data-copy="#mcp-json">{{ t('Copy JSON') }}</button>
-      </td>
-    </tr>
-    <tr>
-      <td class="mcp-cn-label">
-        {{ t('AI Agent Setup Prompt') }}
-        <p class="mcp-help">{{ t('Paste into your AI assistant and it will connect this MCP server for you.') }}</p>
-      </td>
-      <td class="mcp-cn-value">
-        <textarea id="mcp-prompt" class="form-control mcp-mono mcp-prompt" readonly rows="12" onclick="this.select()">Please connect my AI client to an X-Cart store over the Model Context Protocol (MCP).
+          </span>
+          <div class="mcp-actions">
+            <button type="button" class="btn regular-button mcp-copy" data-copy="#mcp-json">{{ t('Copy JSON') }}</button>
+          </div>
+        </div>
+        <div class="clear"></div>
+      </div>
+    </li>
+
+    <li class="input input-textarea">
+      <div class="table-label">
+        <label for="mcp-prompt">{{ t('AI Agent Setup Prompt') }}</label>
+      </div>
+      <div class="table-value">
+        <div class="input-internal-wrapper">
+          <p class="mcp-help">{{ t('Paste into your AI assistant and it will connect this MCP server for you.') }}</p>
+          <span class="input-field-wrapper input input-textarea">
+            <textarea id="mcp-prompt" class="form-control field__field mcp-mono" readonly rows="12" onclick="this.select()">Please connect my AI client to an X-Cart store over the Model Context Protocol (MCP).
 
 Server:
 - Transport: Streamable HTTP
@@ -82,17 +121,29 @@ Do the following:
 3. After updating the config, restart the client, then verify by listing the available MCP tools. This server manages products, orders, categories, reports, vehicle fitment, brands and supplier category mapping (ASAP / Turn14 / SEMA Data).
 
 Treat the API key as a secret — do not share or commit it.</textarea>
-        <button type="button" class="btn regular-button mcp-copy" data-copy="#mcp-prompt">{{ t('Copy as prompt') }}</button>
-      </td>
-    </tr>
-    <tr>
-      <td class="mcp-cn-label">{{ t('Status') }}</td>
-      <td class="mcp-cn-value">
-        <button type="button" class="btn regular-button" id="mcp-test">{{ t('Test connection') }}</button>
-        <span id="mcp-test-result" class="mcp-test-result"></span>
-      </td>
-    </tr>
-  </table>
+          </span>
+          <div class="mcp-actions">
+            <button type="button" class="btn regular-button mcp-copy" data-copy="#mcp-prompt">{{ t('Copy as prompt') }}</button>
+          </div>
+        </div>
+        <div class="clear"></div>
+      </div>
+    </li>
+
+    <li class="input">
+      <div class="table-label">
+        <label>{{ t('Status') }}</label>
+      </div>
+      <div class="table-value">
+        <div class="input-internal-wrapper">
+          <button type="button" class="btn regular-button" id="mcp-test">{{ t('Test connection') }}</button>
+          <span id="mcp-test-result" class="mcp-test-result"></span>
+        </div>
+        <div class="clear"></div>
+      </div>
+    </li>
+
+  </ul>
 </div>
 
 <script>
@@ -178,22 +229,34 @@ Treat the API key as a secret — do not share or commit it.</textarea>
 </script>
 
 <style>
-.mcp-connection { margin: 0 0 24px; padding: 16px 18px; border: 1px solid #d9e0e8; border-radius: 8px; background: #f7f9fb; }
-.mcp-connection-title { margin: 0 0 4px; font-size: 16px; font-weight: 600; color: #1b2838; }
-.mcp-connection-lead { margin: 0 0 14px; font-size: 13px; color: #667; }
-.mcp-connection-table { width: 100%; border-collapse: collapse; }
-.mcp-connection-table td { padding: 8px 10px; vertical-align: top; border-top: 1px solid #e7ecf1; }
-.mcp-connection-table tr:first-child td { border-top: none; }
-.mcp-cn-label { width: 210px; font-weight: 600; font-size: 13px; color: #334; }
-.mcp-help { margin: 4px 0 0; font-size: 11px; font-weight: 400; color: #99a; }
-.mcp-cn-value { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-start; }
-.mcp-connection .form-control { flex: 1 1 320px; min-width: 260px; padding: 6px 8px; border: 1px solid #cdd5dd; border-radius: 4px; background: #fff; }
+/* Typography/colours come from the native admin theme. The flex row + 270px
+ * label column mirror the native options form (whose layout is scoped to
+ * .model-properties, which this header widget sits outside of) so the block
+ * lines up with the settings form below it. Only gaps the theme can't fill
+ * are styled here. */
+.mcp-connection { margin: 0 0 24px; }
+.mcp-connection-title { margin: 0 0 4px; }
+.mcp-connection-lead { margin: 0 0 14px; opacity: .75; }
+.mcp-connection .mcp-connection-list { margin: 0; padding: 0; list-style: none; }
+.mcp-connection ul.table li.input { display: flex; align-items: flex-start; padding: 8px 0; }
+.mcp-connection ul.table li.input .table-label { flex: 0 0 270px; width: 270px; box-sizing: border-box; padding: 6px 15px 0 0; text-align: right; }
+.mcp-connection ul.table li.input .table-value { flex: 1 1 auto; min-width: 0; }
+.mcp-connection .mcp-help { margin: 0 0 6px; font-weight: 400; opacity: .7; }
 .mcp-connection .mcp-mono { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; }
-.mcp-connection .mcp-json, .mcp-connection .mcp-prompt { resize: vertical; }
+.mcp-connection .input-internal-wrapper { min-width: 0; }
+.mcp-connection .input-field-wrapper { display: block; min-width: 0; }
+.mcp-connection .input-field-wrapper .form-control { width: 100%; box-sizing: border-box; }
+.mcp-connection textarea.mcp-mono { width: 100%; max-width: 100%; box-sizing: border-box; resize: vertical; }
+/* Field + inline action buttons: native white/blue regular-button, no bootstrap
+ * input-group (its context recolours the buttons grey). min-width:0 lets the
+ * long readonly value shrink instead of forcing horizontal page overflow. */
+.mcp-connection .mcp-field { display: flex; align-items: flex-start; gap: 8px; }
+.mcp-connection .mcp-field .input-field-wrapper { flex: 1 1 auto; min-width: 0; }
+.mcp-connection .mcp-field .btn { flex: 0 0 auto; }
+.mcp-connection .mcp-actions { margin-top: 6px; }
 .mcp-connection .mcp-secret { -webkit-text-security: disc; text-security: disc; }
-.mcp-connection .btn.mcp-copy, .mcp-connection .btn.mcp-reveal { flex: 0 0 auto; }
-.mcp-muted { color: #99a; font-size: 13px; }
-.mcp-test-result { font-size: 13px; align-self: center; }
-.mcp-test-result.mcp-ok { color: #2d8c3c; font-weight: 600; }
-.mcp-test-result.mcp-err { color: #c0392b; }
+.mcp-connection .mcp-muted { opacity: .65; }
+.mcp-connection .mcp-test-result { margin-left: 10px; }
+.mcp-connection .mcp-test-result.mcp-ok { color: #2d8c3c; font-weight: 600; }
+.mcp-connection .mcp-test-result.mcp-err { color: #c0392b; }
 </style>
