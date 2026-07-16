@@ -1,0 +1,6 @@
+# PHPUnit test harness (downloaded / generated, not source)
+tests/phpunit.phar
+phpunit.phar
+.phpunit.cache/
+.phpunit.result.cache
+tests/tmp/

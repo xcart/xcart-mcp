@@ -32,11 +32,11 @@ class McpAuthenticatorTest extends TestCase
             ->with('Authorization')
             ->willReturn('Bearer valid-api-key-123');
 
-        $profile = $this->createMock(Profile::class);
+        $profile = $this->createStub(Profile::class);
         $profile->method('isAdmin')->willReturn(true);
         $profile->method('getId')->willReturn(1);
 
-        $apiKey = $this->createMock(APIKey::class);
+        $apiKey = $this->createStub(APIKey::class);
         $apiKey->method('getProfile')->willReturn($profile);
         $apiKey->method('getId')->willReturn(10);
 
@@ -95,10 +95,10 @@ class McpAuthenticatorTest extends TestCase
             ->with('Authorization')
             ->willReturn('Bearer customer-key');
 
-        $profile = $this->createMock(Profile::class);
+        $profile = $this->createStub(Profile::class);
         $profile->method('isAdmin')->willReturn(false);
 
-        $apiKey = $this->createMock(APIKey::class);
+        $apiKey = $this->createStub(APIKey::class);
         $apiKey->method('getProfile')->willReturn($profile);
 
         $this->apiKeyRepo
@@ -115,10 +115,10 @@ class McpAuthenticatorTest extends TestCase
 
     public function testAuthenticateStdioWithEnvKey(): void
     {
-        $profile = $this->createMock(Profile::class);
+        $profile = $this->createStub(Profile::class);
         $profile->method('isAdmin')->willReturn(true);
 
-        $apiKey = $this->createMock(APIKey::class);
+        $apiKey = $this->createStub(APIKey::class);
         $apiKey->method('getProfile')->willReturn($profile);
         $apiKey->method('getId')->willReturn(5);
 

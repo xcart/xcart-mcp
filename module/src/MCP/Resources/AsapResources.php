@@ -16,7 +16,7 @@ class AsapResources
     private Connection $conn;
     private string $catTable;
     private string $catTransTable;
-    private string $asapTable = 'xc_category_map_asap';
+    private string $asapTable;
     private ?bool $tableExists = null;
 
     public function __construct(
@@ -26,6 +26,7 @@ class AsapResources
         $this->conn = $this->em->getConnection();
         $this->catTable = $this->tableResolver->resolve(Category::class);
         $this->catTransTable = $this->tableResolver->resolve(\XLite\Model\CategoryTranslation::class);
+        $this->asapTable = $this->tableResolver->resolveTable('category_map_asap');
     }
 
     private function requireTable(): void

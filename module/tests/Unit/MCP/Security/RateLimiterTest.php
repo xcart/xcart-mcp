@@ -4,146 +4,121 @@ declare(strict_types=1);
 
 namespace Tests\Unit\MCP\Security;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Psr\SimpleCache\CacheInterface;
+use Tests\Support\ArrayCache;
 use XC\MCP\MCP\Security\McpRateLimitException;
 use XC\MCP\MCP\Security\RateLimiter;
 
-class RateLimiterTest extends TestCase
+/**
+ * Current signature: RateLimiter(CacheInterface $cache, int $windowSeconds = 60).
+ * check(string $key, int $maxRequests = 60). Uses a has()/set() spin-lock around
+ * a get()/set() increment; a real in-memory cache exercises that path faithfully.
+ */
+final class RateLimiterTest extends TestCase
 {
-    private CacheInterface&MockObject $cache;
+    private ArrayCache $cache;
 
     protected function setUp(): void
     {
-        $this->cache = $this->createMock(CacheInterface::class);
+        $this->cache = new ArrayCache();
     }
 
-    public function testAllowsRequestsUnderLimit(): void
+    public function testAllowsRequestsUnderLimitAndIncrements(): void
     {
-        $limiter = new RateLimiter($this->cache, maxRequests: 60, windowSeconds: 60);
+        $limiter = new RateLimiter($this->cache);
 
-        $cacheKey = 'mcp_rate_' . md5('api-key-1');
+        $this->assertSame(0, $limiter->getCount('api-key-1'));
 
-        $this->cache
-            ->expects($this->once())
-            ->method('get')
-            ->with($cacheKey, 0)
-            ->willReturn(10); // 10 requests so far, well under 60
+        $limiter->check('api-key-1', 60);
+        $this->assertSame(1, $limiter->getCount('api-key-1'));
 
-        $this->cache
-            ->expects($this->once())
-            ->method('set')
-            ->with($cacheKey, 11, 60);
-
-        // Should not throw
-        $limiter->check('api-key-1');
+        $limiter->check('api-key-1', 60);
+        $this->assertSame(2, $limiter->getCount('api-key-1'));
     }
 
-    public function testBlocksRequestsOverLimit(): void
+    public function testBlocksRequestsAtLimit(): void
     {
-        $limiter = new RateLimiter($this->cache, maxRequests: 5, windowSeconds: 60);
+        $limiter = new RateLimiter($this->cache);
 
-        $cacheKey = 'mcp_rate_' . md5('api-key-2');
-
-        $this->cache
-            ->expects($this->once())
-            ->method('get')
-            ->with($cacheKey, 0)
-            ->willReturn(5); // Already at limit
-
-        $this->cache
-            ->expects($this->never())
-            ->method('set');
+        // Five allowed calls fill the window (0->5).
+        for ($i = 0; $i < 5; $i++) {
+            $limiter->check('api-key-2', 5);
+        }
+        $this->assertSame(5, $limiter->getCount('api-key-2'));
 
         $this->expectException(McpRateLimitException::class);
         $this->expectExceptionMessage('Rate limit exceeded: 5 requests per 60 seconds');
 
-        $limiter->check('api-key-2');
+        $limiter->check('api-key-2', 5);
     }
 
-    public function testDifferentKeysIndependent(): void
+    public function testDifferentKeysAreIndependent(): void
     {
-        $limiter = new RateLimiter($this->cache, maxRequests: 3, windowSeconds: 60);
+        $limiter = new RateLimiter($this->cache);
 
-        $cacheKeyA = 'mcp_rate_' . md5('key-a');
-        $cacheKeyB = 'mcp_rate_' . md5('key-b');
-
-        // Key A is at limit
-        $this->cache
-            ->method('get')
-            ->willReturnCallback(function (string $key) use ($cacheKeyA, $cacheKeyB): int {
-                return match ($key) {
-                    $cacheKeyA => 3,  // At limit
-                    $cacheKeyB => 1,  // Under limit
-                    default => 0,
-                };
-            });
-
-        $this->cache
-            ->expects($this->once())
-            ->method('set')
-            ->with($cacheKeyB, 2, 60);
-
-        // Key A should be blocked
-        try {
-            $limiter->check('key-a');
-            $this->fail('Expected McpRateLimitException for key-a');
-        } catch (McpRateLimitException) {
-            // Expected
+        for ($i = 0; $i < 3; $i++) {
+            $limiter->check('key-a', 3);
         }
 
-        // Key B should be allowed
-        $limiter->check('key-b');
+        // key-a is now at its limit.
+        try {
+            $limiter->check('key-a', 3);
+            $this->fail('Expected McpRateLimitException for key-a');
+        } catch (McpRateLimitException) {
+            // expected
+        }
+
+        // key-b is untouched and must still be allowed.
+        $limiter->check('key-b', 3);
+        $this->assertSame(1, $limiter->getCount('key-b'));
     }
 
-    public function testGetCount(): void
+    public function testGetCountReflectsStoredValue(): void
     {
-        $limiter = new RateLimiter($this->cache, maxRequests: 60);
+        $limiter = new RateLimiter($this->cache);
 
-        $cacheKey = 'mcp_rate_' . md5('api-key-1');
+        $limiter->check('counter-key', 60);
+        $limiter->check('counter-key', 60);
+        $limiter->check('counter-key', 60);
 
-        $this->cache
-            ->expects($this->once())
-            ->method('get')
-            ->with($cacheKey, 0)
-            ->willReturn(25);
-
-        $this->assertSame(25, $limiter->getCount('api-key-1'));
+        $this->assertSame(3, $limiter->getCount('counter-key'));
     }
 
-    public function testReset(): void
+    public function testResetClearsCounter(): void
     {
-        $limiter = new RateLimiter($this->cache, maxRequests: 60);
+        $limiter = new RateLimiter($this->cache);
 
-        $cacheKey = 'mcp_rate_' . md5('api-key-1');
+        $limiter->check('reset-key', 60);
+        $this->assertSame(1, $limiter->getCount('reset-key'));
 
-        $this->cache
-            ->expects($this->once())
-            ->method('delete')
-            ->with($cacheKey);
-
-        $limiter->reset('api-key-1');
+        $limiter->reset('reset-key');
+        $this->assertSame(0, $limiter->getCount('reset-key'));
     }
 
-    public function testBoundaryExactlyAtLimit(): void
+    public function testCustomWindowSecondsAppearInExceptionMessage(): void
     {
-        $limiter = new RateLimiter($this->cache, maxRequests: 10, windowSeconds: 30);
+        $limiter = new RateLimiter($this->cache, windowSeconds: 30);
 
-        $cacheKey = 'mcp_rate_' . md5('boundary-key');
+        $limiter->check('window-key', 1);
 
-        // At 9, should still be allowed (one more request before hitting 10)
-        $this->cache
-            ->expects($this->once())
-            ->method('get')
-            ->with($cacheKey, 0)
-            ->willReturn(9);
+        $this->expectException(McpRateLimitException::class);
+        $this->expectExceptionMessage('Rate limit exceeded: 1 requests per 30 seconds');
 
-        $this->cache
-            ->expects($this->once())
-            ->method('set')
-            ->with($cacheKey, 10, 30);
+        $limiter->check('window-key', 1);
+    }
 
-        $limiter->check('boundary-key');
+    public function testLockIsReleasedAfterEachCheck(): void
+    {
+        $limiter = new RateLimiter($this->cache);
+
+        $limiter->check('lock-key', 60);
+
+        // If the lock were leaked, the internal lock key would remain set and the
+        // next check would spin-fail. A successful second call proves release.
+        $lockKey = 'mcp_rate_' . md5('lock-key') . '_lock';
+        $this->assertFalse($this->cache->has($lockKey));
+
+        $limiter->check('lock-key', 60);
+        $this->assertSame(2, $limiter->getCount('lock-key'));
     }
 }
