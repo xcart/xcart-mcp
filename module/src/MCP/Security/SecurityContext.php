@@ -6,6 +6,16 @@ namespace XC\MCP\MCP\Security;
 
 use XLite\Model\Profile;
 
+/**
+ * Per-request authorization context.
+ *
+ * Access policy is DEFAULT-OPEN: an authenticated API key (or a full-access
+ * STDIO connection) may call every tool. The $allowedTools allow-list is
+ * honoured by {@see canUseTool()} but there is no data source that ever
+ * populates it (no per-key config field), so in practice the list is always
+ * empty and every tool is permitted. Per-key ACL is intentionally NOT
+ * implemented in this module; see the decision-log for the audit rationale.
+ */
 class SecurityContext
 {
     /**
@@ -13,14 +23,12 @@ class SecurityContext
      * @param int|null     $apiKeyId     API key identifier for rate limiting and logging
      * @param bool         $fullAccess   Bypass all authorization checks (STDIO local access)
      * @param string[]     $allowedTools Explicit list of allowed tool names (empty = all allowed)
-     * @param string[]     $allowedResources Explicit list of allowed resource URIs (empty = all allowed)
      */
     public function __construct(
         private readonly ?Profile $profile = null,
         private readonly ?int $apiKeyId = null,
         private readonly bool $fullAccess = false,
         private readonly array $allowedTools = [],
-        private readonly array $allowedResources = [],
     ) {}
 
     /**
@@ -34,7 +42,7 @@ class SecurityContext
 
     /**
      * Check whether the given tool is permitted in this context.
-     * If allowedTools is empty, all tools are permitted (default open policy).
+     * If allowedTools is empty, all tools are permitted (default-open policy).
      */
     public function canUseTool(string $toolName): bool
     {
@@ -43,36 +51,6 @@ class SecurityContext
         }
 
         if (empty($this->allowedTools)) {
-            return true;
-        }
-
-        return in_array($toolName, $this->allowedTools, true);
-    }
-
-    /**
-     * Check whether the given resource URI is readable in this context.
-     * If allowedResources is empty, all resources are readable (default open policy).
-     */
-    public function canReadResource(string $uri): bool
-    {
-        if ($this->fullAccess) {
-            return true;
-        }
-
-        if (empty($this->allowedResources)) {
-            return true;
-        }
-
-        return in_array($uri, $this->allowedResources, true);
-    }
-
-    /**
-     * Check whether a tool has been explicitly listed in the allowed set.
-     * Unlike canUseTool(), returns false when the allowedTools list is empty.
-     */
-    public function isToolExplicitlyAllowed(string $toolName): bool
-    {
-        if ($this->fullAccess) {
             return true;
         }
 
@@ -100,13 +78,5 @@ class SecurityContext
     public function getAllowedTools(): array
     {
         return $this->allowedTools;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getAllowedResources(): array
-    {
-        return $this->allowedResources;
     }
 }

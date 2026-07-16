@@ -29,6 +29,7 @@ class ServerFactory
         private readonly LoggerInterface $logger,
         private readonly CacheInterface $cache,
         private readonly SecurityContextHolder $contextHolder,
+        private readonly CapabilityPruner $pruner,
         iterable $capabilityProviders = [],
     ) {
         $this->capabilityProviders = $capabilityProviders;
@@ -96,39 +97,27 @@ class ServerFactory
      *  - dangerous tools when dangerous_tools_enabled is off;
      *  - tools/resources of optional QSL modules that aren't installed.
      *
-     * unregister*() is idempotent in SDK 0.6, so removing an absent name is a no-op.
+     * The decision (which names to hide) is computed by CapabilityPruner from
+     * ToolCatalog, so the safety logic is testable and never duplicates literal
+     * tool names. unregister*() is idempotent in SDK 0.6, so removing an absent
+     * name is a no-op.
      */
     private function pruneUnavailableCapabilities(RegistryInterface $registry, ?object $mcpConfig): void
     {
-        // 1. Dangerous tools — gate by config (was previously only enforced at call time).
-        if (!($mcpConfig?->dangerous_tools_enabled ?? false)) {
-            foreach (['product_delete', 'product_bulk_update_prices', 'vehicle_disable_all_then_enable'] as $tool) {
-                $registry->unregisterTool($tool);
-            }
+        $dangerousToolsEnabled = (bool) ($mcpConfig?->dangerous_tools_enabled ?? false);
+
+        $groupAvailable = [];
+        foreach ($this->pruner->optionalGroupEntities() as $key => $entityClass) {
+            $groupAvailable[$key] = $this->entityTableAvailable($entityClass);
         }
 
-        // 2. Vehicle tools/resources — require QSL\Make (Level1 entity).
-        if (!$this->entityTableAvailable('QSL\Make\Model\Level1')) {
-            foreach ([
-                'vehicle_makes_list', 'vehicle_models_list', 'vehicle_years_list',
-                'vehicle_make_toggle', 'vehicle_model_toggle', 'vehicle_bulk_toggle_makes',
-                'vehicle_bulk_toggle_models', 'vehicle_set_year_range', 'vehicle_models_keep_only',
-                'vehicle_disable_all_then_enable', 'vehicle_stats',
-            ] as $tool) {
-                $registry->unregisterTool($tool);
-            }
-            $registry->unregisterResource('xcart://vehicles/stats');
-            $registry->unregisterResource('xcart://vehicles/makes');
-        }
+        $hide = $this->pruner->capabilitiesToHide($dangerousToolsEnabled, $groupAvailable);
 
-        // 3. Brand tools/resources — require QSL\ShopByBrand (Brand entity).
-        if (!$this->entityTableAvailable('QSL\ShopByBrand\Model\Brand')) {
-            foreach ([
-                'brand_list', 'brand_get', 'brand_toggle', 'brand_update', 'brand_products',
-            ] as $tool) {
-                $registry->unregisterTool($tool);
-            }
-            $registry->unregisterResource('xcart://brands/list');
+        foreach ($hide['tools'] as $tool) {
+            $registry->unregisterTool($tool);
+        }
+        foreach ($hide['resources'] as $uri) {
+            $registry->unregisterResource($uri);
         }
     }
 

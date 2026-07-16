@@ -1,8 +1,8 @@
-version: 5.6.2.0
+version: 5.6.2.1
 type: common
 authorName: X-Cart team
 moduleName: 'MCP AI Integration'
-description: 'Turn your store into an AI-ready backend. This module runs a Model Context Protocol (MCP) server so AI agents — Claude Desktop, Cursor, Codex and other MCP clients — can manage your store through a secure, standardized protocol over local STDIO or authenticated HTTP. Ships with 51 tools, 28 resources and 13 guided prompts covering products, orders, categories, reports, vehicle fitment, brands and supplier category mapping (ASAP, Turn14, SEMA Data). Bearer-token auth, per-key rate limiting and gated dangerous operations keep it safe.'
+description: 'Turn your store into an AI-ready backend. This module runs a Model Context Protocol (MCP) server so AI agents — Claude Desktop, Cursor, Codex and other MCP clients — can manage your store through a secure, standardized protocol over local STDIO or authenticated HTTP. Ships with 51 tools, 29 resources and 13 guided prompts covering products, orders, categories, reports, vehicle fitment, brands and supplier category mapping (ASAP, Turn14, SEMA Data). Bearer-token auth, per-key rate limiting and gated dangerous operations keep it safe.'
 dependsOn: {}
 canDisable: true
 showSettingsForm: true

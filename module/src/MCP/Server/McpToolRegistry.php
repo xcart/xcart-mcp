@@ -4,53 +4,30 @@ declare(strict_types=1);
 
 namespace XC\MCP\MCP\Server;
 
-use Mcp\Capability\Attribute\McpTool;
-
 class McpToolRegistry
 {
+    public function __construct(
+        private readonly ToolCatalog $catalog,
+    ) {}
+
     /**
-     * Scan tool classes and return metadata for the settings page.
+     * Return metadata for the settings page.
+     *
+     * Names and danger classification come from ToolCatalog (the single source
+     * of truth derived from #[McpTool] / #[ToolAnnotation(destructiveHint)]), so
+     * the settings page never carries its own copy of the dangerous-tools list.
      *
      * @return list<array{name: string, label: string, danger: bool}>
      */
     public function getToolDefinitions(): array
     {
-        $toolClasses = [
-            \XC\MCP\MCP\Tools\ProductTools::class,
-            \XC\MCP\MCP\Tools\OrderTools::class,
-            \XC\MCP\MCP\Tools\CategoryTools::class,
-            \XC\MCP\MCP\Tools\SearchTools::class,
-            \XC\MCP\MCP\Tools\ReportTools::class,
-            \XC\MCP\MCP\Tools\VehicleTools::class,
-            \XC\MCP\MCP\Tools\BrandTools::class,
-            \XC\MCP\MCP\Tools\AsapTools::class,
-            \XC\MCP\MCP\Tools\Turn14Tools::class,
-            \XC\MCP\MCP\Tools\SemaDataTools::class,
-        ];
-
-        // Keep in sync with McpAuthorizer::DANGEROUS_TOOLS.
-        $dangerousTools = [
-            'product_delete',
-            'product_bulk_update_prices',
-            'vehicle_disable_all_then_enable',
-        ];
-
         $tools = [];
-        foreach ($toolClasses as $class) {
-            $ref = new \ReflectionClass($class);
-            foreach ($ref->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
-                $attrs = $method->getAttributes(McpTool::class);
-                if (empty($attrs)) {
-                    continue;
-                }
-                $attr = $attrs[0]->newInstance();
-                $name = $attr->name;
-                $tools[] = [
-                    'name' => $name,
-                    'label' => $this->nameToLabel($name),
-                    'danger' => in_array($name, $dangerousTools, true),
-                ];
-            }
+        foreach ($this->catalog->getAllToolNames() as $name) {
+            $tools[] = [
+                'name' => $name,
+                'label' => $this->nameToLabel($name),
+                'danger' => $this->catalog->isDangerous($name),
+            ];
         }
 
         return $tools;

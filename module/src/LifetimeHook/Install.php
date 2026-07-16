@@ -196,7 +196,8 @@ class Install
 
     /**
      * Coerce an install.yaml option value into the string form X-Cart stores in
-     * xc_config.value (OnOff checkboxes use '1' / '', everything else stringified).
+     * the Config table value column (OnOff checkboxes use '1' / '', everything
+     * else stringified).
      */
     private function normalizeConfigValue(mixed $value): string
     {
@@ -236,9 +237,11 @@ class Install
 
         $apiKey = 'mcp_' . bin2hex(random_bytes(16));
 
-        $conn = \XLite\Core\Database::getEM()->getConnection();
+        $em = \XLite\Core\Database::getEM();
+        $configTable = $em->getClassMetadata(\XLite\Model\Config::class)->getTableName();
+        $conn = $em->getConnection();
         $conn->executeStatement(
-            "UPDATE xc_config SET value = ? WHERE name = 'mcp_api_key' AND category = ?",
+            "UPDATE {$configTable} SET value = ? WHERE name = 'mcp_api_key' AND category = ?",
             [$apiKey, 'XC\\MCP']
         );
 

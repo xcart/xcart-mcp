@@ -21,7 +21,7 @@ class Turn14Tools
     private ?CategoryFactory $categoryFactory = null;
     private string $catTable;
     private string $catTransTable;
-    private string $t14Table = 'xc_category_map_turn14';
+    private string $t14Table;
     private ?bool $tableExists = null;
 
     public function __construct(
@@ -32,6 +32,7 @@ class Turn14Tools
         $this->conn = $this->em->getConnection();
         $this->catTable = $this->tableResolver->resolve(Category::class);
         $this->catTransTable = $this->tableResolver->resolve(\XLite\Model\CategoryTranslation::class);
+        $this->t14Table = $this->tableResolver->resolveTable('category_map_turn14');
     }
 
     private function requireTable(): void

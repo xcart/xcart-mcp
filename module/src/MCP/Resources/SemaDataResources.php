@@ -16,7 +16,7 @@ class SemaDataResources
     private Connection $conn;
     private string $catTable;
     private string $catTransTable;
-    private string $semaTable = 'xc_category_map_sema';
+    private string $semaTable;
     private ?bool $tableExists = null;
 
     public function __construct(
@@ -26,6 +26,7 @@ class SemaDataResources
         $this->conn = $this->em->getConnection();
         $this->catTable = $this->tableResolver->resolve(Category::class);
         $this->catTransTable = $this->tableResolver->resolve(\XLite\Model\CategoryTranslation::class);
+        $this->semaTable = $this->tableResolver->resolveTable('category_map_sema');
     }
 
     private function requireTable(): void

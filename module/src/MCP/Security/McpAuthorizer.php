@@ -5,22 +5,14 @@ declare(strict_types=1);
 namespace XC\MCP\MCP\Security;
 
 use Psr\Log\LoggerInterface;
+use XC\MCP\MCP\Server\ToolCatalog;
 
 class McpAuthorizer
 {
-    /**
-     * Tools that can cause data loss or significant changes.
-     * Kept as a fallback for tools that lack a ToolAnnotation attribute.
-     */
-    private const DANGEROUS_TOOLS = [
-        'product_delete',
-        'product_bulk_update_prices',
-        'vehicle_disable_all_then_enable',
-    ];
-
     public function __construct(
         private readonly SecurityContextHolder $contextHolder,
         private readonly LoggerInterface $logger,
+        private readonly ToolCatalog $toolCatalog,
     ) {}
 
     private function isDangerousToolsEnabled(): bool
@@ -75,38 +67,15 @@ class McpAuthorizer
     }
 
     /**
-     * Authorize a resource read within the current security context.
-     *
-     * @throws McpAuthorizationException When the resource is not allowed
-     */
-    public function authorizeResource(string $uri): void
-    {
-        $context = $this->contextHolder->getContext();
-
-        if ($context->isFullAccess()) {
-            return;
-        }
-
-        if (!$context->canReadResource($uri)) {
-            $this->logger->warning('Blocked unauthorized resource read', [
-                'uri' => $uri,
-                'api_key_id' => $context->getApiKeyId(),
-            ]);
-
-            throw new McpAuthorizationException(
-                sprintf('Resource "%s" is not allowed for this API key', $uri)
-            );
-        }
-    }
-
-    /**
      * Check if a tool is classified as dangerous.
      *
-     * Reads ToolAnnotation attribute if available, falls back to the static list.
+     * Danger is sourced solely from #[ToolAnnotation(destructiveHint: true)] via
+     * ToolCatalog, so a new destructive tool is gated automatically without
+     * touching any static list.
      */
     public function isDangerousTool(string $toolName): bool
     {
-        return in_array($toolName, self::DANGEROUS_TOOLS, true);
+        return $this->toolCatalog->isDangerous($toolName);
     }
 
     /**
@@ -114,6 +83,6 @@ class McpAuthorizer
      */
     public function getDangerousTools(): array
     {
-        return self::DANGEROUS_TOOLS;
+        return $this->toolCatalog->getDangerousToolNames();
     }
 }
